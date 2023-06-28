@@ -15,7 +15,7 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ("id", "title", 'slug', 'category', "modified_date", "created_date")
     fields = ("title", 'slug', 'category', "image", "body", 'tags', "modified_date", "created_date")
     readonly_fields = ("modified_date", "created_date")
-    # prepopulated_fields = {"slug": ("title", )}
+    prepopulated_fields = {"slug": ("title", )}
     search_fields = ("title", )
     filter_horizontal = ('tags', )
     list_filter = ("created_date", 'category')

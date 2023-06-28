@@ -67,8 +67,8 @@
                                     {% endfor %}
 
                                 </div>
-                                <a href="{% url 'articles:edit' object.id %}" class="btn btn-outline-info">edit</a>
-                                <a href="{% url 'articles:delete' object.id %}"
+                                <a href="{% url 'articles:edit' object.slug %}" class="btn btn-outline-info">edit</a>
+                                <a href="{% url 'articles:delete' object.slug %}"
                                    class="btn btn-outline-danger">delete</a>
                             </div>
                         </div>

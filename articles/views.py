@@ -21,7 +21,6 @@ def article_list(request):
     if q:
         object_list = object_list.filter(title__icontains=q)
 
-
     paginator = Paginator(object_list, 3)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -33,17 +32,6 @@ def article_list(request):
         'tags': tags,
     }
     return render(request, 'articles/index.html', ctx)
-
-
-def article_detail(request, slug):
-    if slug == "None":
-        return HttpResponseForbidden('The object has no attribute "slug"')
-    obj = Article.objects.get(slug=slug)
-
-    ctx = {
-        "object": obj
-    }
-    return render(request, 'articles/detail.html', ctx)
 
 
 def article_create_view(request):
@@ -60,7 +48,7 @@ def article_create_view(request):
             # ctx['created'] = True
             messages.success(request, f'The article "{obj.title}" was successfully created')
             ctx['obj'] = obj
-            return redirect(reverse('articles:detail', kwargs={"pk": obj.id}))
+            return redirect(reverse('articles:detail', kwargs={"slug": obj.slug}))
 
     return render(request, 'articles/create.html', ctx)
 
@@ -72,7 +60,7 @@ def article_create_form_view(request):
         if form.is_valid():
             obj = form.save()
             messages.success(request, f'The article "{obj.title}" was successfully created')
-            return redirect(reverse("articles:detail", kwargs={"pk": obj.id}))
+            return redirect(reverse("articles:detail", kwargs={"slug": obj.slug}))
     ctx = {
         "form": form
     }
@@ -84,18 +72,15 @@ def _article_create_form_view(request):
     if form.is_valid():
         obj = form.save()
         messages.success(request, f'The article "{obj.title}" was successfully created')
-        return redirect(reverse("articles:detail", kwargs={"pk": obj.id}))
+        return redirect(reverse("articles:detail", kwargs={"slug": obj.slug}))
     ctx = {
         "form": form
     }
     return render(request, 'articles/create_form.html', ctx)
 
 
-def article_edit_form(request, pk):
-    try:
-        obj = Article.objects.get(id=pk)
-    except Article.DoesNotExist:
-        raise Http404
+def article_edit_form(request, slug):
+    obj = get_object_or_404(Article, slug=slug)
 
     form = ArticleForm(instance=obj)
 
@@ -104,7 +89,7 @@ def article_edit_form(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'The article "{obj.title}" was successfully changed')
-            return redirect(reverse("articles:detail", kwargs={"pk": pk}))
+            return redirect(reverse("articles:detail", kwargs={"slug": slug}))
 
     ctx = {
         "form": form,
@@ -114,8 +99,8 @@ def article_edit_form(request, pk):
     return render(request, 'articles/edit.html', ctx)
 
 
-def article_delete_view(request, pk):
-    obj = get_object_or_404(Article, id=pk)
+def article_delete_view(request, slug):
+    obj = get_object_or_404(Article, slug=slug)
     if request.method == "POST":
         obj.delete()
         messages.error(request, f'The article "{obj.title}" was successfully deleted')
@@ -124,3 +109,14 @@ def article_delete_view(request, pk):
         "object": obj
     }
     return render(request, 'articles/delete.html', ctx)
+
+
+def article_detail(request, slug):
+    if slug == "None":
+        return HttpResponseForbidden('The object has no attribute "slug"')
+    obj = get_object_or_404(Article, slug=slug)
+
+    ctx = {
+        "object": obj
+    }
+    return render(request, 'articles/detail.html', ctx)
